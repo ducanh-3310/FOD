@@ -8,7 +8,7 @@ import math
 model = YOLO("/home/ducanh/Downloads/results/runs/detect/train/weights/best.pt")  # Đường dẫn tới file best.pt
 
 # Đọc ảnh đầu vào
-image_path = "/home/ducanh/FOD/cam0/test/img9.jpeg"  # Đường dẫn tới ảnh
+image_path = "/home/ducanh/FOD/cam0/check/check10.jpeg"  # Đường dẫn tới ảnh
 image = cv2.imread(image_path)
 
 # Thay đổi kích thước ảnh đầu vào thành 800x450
@@ -82,27 +82,40 @@ for bbox, center in zip(bounding_boxes, centers):
     width_mm, height_mm = calculate_bbox_size(bbox, pixel_to_mm_ratio=1.31)
     
     # In kích thước bounding box thực tế (mm)
-    print(f"Bounding box (pixel): {bbox}")
+    # print(f"Bounding box (pixel): {bbox}")
     print(f"Bounding box (mm): Width = {width_mm:.2f} mm, Height = {height_mm:.2f} mm")
     
     # In tọa độ của tâm bounding box theo pixel
-    print(f"Center (pixel): {center}")
+    # print(f"Center (pixel): {center}")
     
     # Tính tọa độ giao điểm của đường vuông góc từ tâm bbox xuống cạnh dưới ảnh
     intersection_point = (center[0], height-1)
-    print(f"Intersection point (pixel): {intersection_point}")
+    # print(f"Intersection point (pixel): {intersection_point}")
+
+    # Tính khoảng cách từ tâm bounding box đến intersection_point
+    a_pixel = math.sqrt((intersection_point[0] - center[0]) ** 2 + (intersection_point[1] - center[1]) ** 2)
+    a_mm = a_pixel*1.31
+    # print(f"distance from FOD to intersection_point : {a_mm} mm")
 
     # Tính tọa độ chính giữa cạnh dưới của ảnh
     center_bottom = (width // 2, height - 1)
-    print(f"Center bottom (pixel): {center_bottom}")
+    # print(f"Center bottom (pixel): {center_bottom}")
 
     # Tính khoảng cách từ intersection_point đến center_bottom
     d1_pixel = math.sqrt((center_bottom[0] - intersection_point[0]) ** 2 + (center_bottom[1] - intersection_point[1]) ** 2)
-    
-    # Chuyển khoảng cách từ pixel sang mm
     d1_mm = d1_pixel * 1.31
-    print(f"Distance from intersection point to center bottom: {d1_mm:.2f} mm")
+    # print(f"Distance from intersection point to center bottom: {d1_mm:.2f} mm")
     
+    # Tính giá trị x và y từ hệ phương trình
+    # x/y = a_mm / 550 => x = (a_mm / 550) * y
+    # x + y = d1_mm => y = d1_mm / (1 + (a_mm / 550))
+    
+    y = d1_mm / (1 + (a_mm / 550))
+    x = (a_mm / 550) * y
+    
+    # print(f"x = {x:.2f} mm")
+    # print(f"y = {y:.2f} mm")
+
     # Vẽ bounding box và các tâm
     cv2.rectangle(image_resized, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
     cv2.circle(image_resized, center, 5, (0, 0, 255), -1)
@@ -110,20 +123,20 @@ for bbox, center in zip(bounding_boxes, centers):
     # Vẽ đường thẳng vuông góc từ tâm bounding box xuống cạnh dưới của khung hình (không phải bbox)
     cv2.line(image_resized, center, (center[0], height-1), (255, 0, 0), 2)
     
-    # Tính chiều dài của cạnh vuông góc (từ tâm bounding box đến cạnh dưới của khung hình)
-    distance_pixels = height - center[1]
+    # # Tính chiều dài của cạnh vuông góc (từ tâm bounding box đến cạnh dưới của khung hình)
+    # distance_pixels = height - center[1]
     
-    # Chuyển từ pixel sang mm
-    distance_mm = distance_pixels * 1.31
-    print(f"Distance from center to bottom of image: {distance_mm:.2f} mm")
+    # # Chuyển từ pixel sang mm
+    # distance_mm = distance_pixels * 1.31
+    # print(f"Distance from center to bottom of image: {distance_mm:.2f} mm")
     
     # Khoảng cách từ camera đến FOD
-    d_end = math.sqrt((d1_mm / 2) ** 2 + (distance_mm) ** 2) + math.sqrt((d1_mm / 2) ** 2 + 600 ** 2) #kcach tu chan cam den chinh giua canh giua anh la 60cm
+    d_end = math.sqrt((a_mm) ** 2 + (x) ** 2) + math.sqrt((y) ** 2 + 550 ** 2) #kcach tu chan cam den chinh giua canh giua anh la 60cm
     print(f"Distance from camera to FOD: {d_end:.2f} mm")
 
 # Hiển thị ảnh kết quả có kích thước 800x450
 cv2.imshow("Result", image_resized)
-output_image_path = "/home/ducanh/FOD/cam0/done_1.jpg"
+output_image_path = "/home/ducanh/FOD/cam0//imgend/done_10.jpg"
 cv2.imwrite(output_image_path, image_resized)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
