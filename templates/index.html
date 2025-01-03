@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection with YOLO</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .video-container {
+            flex: 1;
+            text-align: center;
+        }
+        .stats-container {
+            flex: 1;
+            margin-left: 20px;
+            overflow-y: scroll;
+        }
+        #stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #stats-table th, #stats-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        #stats-table th {
+            background-color: #f4f4f4;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="video-container">
+        <h2>Live Webcam Feed</h2>
+        <img src="{{ url_for('video_feed') }}" alt="Video Feed" id="video-feed">
+    </div>
+
+    <div class="stats-container">
+        <h2>Object Detection Results</h2>
+        <img src="{{ url_for('static', filename='images/result.jpg') }}" alt="Processed Image" id="processed-image">
+        <h3>Detected Objects</h3>
+        <table id="stats-table">
+            <thead>
+                <tr>
+                    <th>Object No</th>
+                    <th>Object Name</th>
+                    <th>Bounding Box</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data sẽ được cập nhật ở đây -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Sử dụng JavaScript để cập nhật bảng kết quả CSV
+        function fetchCSV() {
+            fetch('/get_csv')
+            .then(response => response.json())
+            .then(data => {
+                const csvData = data.csv_data;
+                const tableBody = document.querySelector('#stats-table tbody');
+                const rows = csvData.split('\n').map(row => row.split(','));
+                
+                tableBody.innerHTML = '';
+                rows.forEach((row, index) => {
+                    if (index > 0) {  // Bỏ qua dòng đầu tiên (tiêu đề)
+                        const tr = document.createElement('tr');
+                        row.forEach(cell => {
+                            const td = document.createElement('td');
+                            td.textContent = cell;
+                            tr.appendChild(td);
+                        });
+                        tableBody.appendChild(tr);
+                    }
+                });
+            });
+        }
+
+        // Cập nhật bảng CSV mỗi giây
+        setInterval(fetchCSV, 1000);
+    </script>
+</body>
+</html>
