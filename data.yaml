@@ -1,0 +1,12 @@
+path: /content/drive/MyDrive/final
+train: /kaggle/input/traincam/train
+val: /kaggle/input/traincam/val
+names:
+  0: Gas Lighter
+  1: Zippo
+  2: Bottle
+  3: Metal
+  4: Other
+  5: Plastic
+  6: Battery 9V
+  7: Battery AA
