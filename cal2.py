@@ -55,11 +55,11 @@ camera_matrix = load_matrix("/home/ducanh/FOD/cam0/cameraMatrix.pkl")
 dist_coeffs = load_matrix("/home/ducanh/FOD/cam0/dist.pkl")
 
 # Tải mô hình YOLO từ file best.pt
-model = YOLO("/home/ducanh/Downloads/results/runs/detect/train/weights/best.pt")  # Đường dẫn tới file best.pt
+model = YOLO("/home/ducanh/FOD/best.pt")  # Đường dẫn tới file best.pt
 
 # Đọc các tệp ảnh từ thư mục đầu vào
-input_folder = "/home/ducanh/FOD/cam0/check/"  # Đường dẫn tới thư mục chứa các ảnh đầu vào
-output_folder = "/home/ducanh/FOD/cam0/imgend/"  # Đường dẫn tới thư mục lưu ảnh đã xử lý
+input_folder = "/home/ducanh/FOD/cam0/f0/"  # Đường dẫn tới thư mục chứa các ảnh đầu vào
+output_folder = "/home/ducanh/FOD/cam0/f0/9v"  # Đường dẫn tới thư mục lưu ảnh đã xử lý
 
 # Kiểm tra và tạo thư mục output nếu không tồn tại
 if not os.path.exists(output_folder):
